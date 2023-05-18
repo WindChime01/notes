@@ -1,0 +1,114 @@
+db/Query类好用的方法 
+           /**
+     * 兼容TP3.2里面的getField
+     * 获取一条记录的某个字段值
+     * @access public
+     * @param string $field  字段名
+     * @param string $spea  字段数据间隔符号 NULL返回数组
+     * @return mixed
+     */
+    public function getField($field,$sepa=null) {
+        if($sepa == true)
+        {                        
+            return $this->column($field);
+        }elseif(strstr($field,','))
+        {
+            $field2 = explode(',', $field);
+            $f = array_shift($field2);             
+            return $this->column($field,$f); 
+        }else
+        {
+            return $this->value($field);
+        }
+    }
+        /**
+     * 为兼容3.2 添加save 方法
+     * 此函数提供作者 QQ名 IT草根
+     * @access public
+     * @param array     $data 数据          
+     * @return integer|false
+     */
+    public function save($data = [])
+    {        
+        if(isset($this->options['where']) && $this->options['where'])
+        {
+            return $this->update($data);
+        }
+        else
+        {
+            return $this->insert($data);
+        }
+    }
+        /**
+     * 为兼容3.2 添加add 方法     
+     * @access public
+     * @param array     $data 数据          
+     * @return $this->insert($data);
+     */
+    public function add($data = [])
+    {  
+       $this->insert($data);      
+       return $this->getLastInsID();
+    } 
+    /**
+     * 为兼容3.2 添加allowField 方法  
+     * 设置允许写入的字段
+     * @access public   
+     * @return $data
+     */
+    public function allowField($data)
+    {        
+        $field = $this->getTableInfo('', 'fields');
+        // 检测字段
+        if (!empty($field)) {
+            foreach ($data as $key => $val) {
+                if (!in_array($key, $field)) {
+                    unset($data[$key]);
+                }
+            }
+        }                                   
+        return $data;
+    }
+    /**
+     * 得到某个字段的值
+     * @access public
+     * @param string $field   字段名
+     * @param mixed  $default 默认值
+     * @param bool   $force   强制转为数字类型
+     * @return mixed
+     */
+    public function value($field, $default = null, $force = false)
+    {
+        $result = false;
+        if (empty($options['fetch_sql']) && !empty($this->options['cache'])) {
+            // 判断查询缓存
+            $cache = $this->options['cache'];
+            if (empty($this->options['table'])) {
+                $this->options['table'] = $this->getTable();
+            }
+            $key    = is_string($cache['key']) ? $cache['key'] : md5($field . serialize($this->options));
+            $result = Cache::get($key);
+        }
+        if (false === $result) {
+            if (isset($this->options['field'])) {
+                unset($this->options['field']);
+            }
+            $pdo = $this->field($field)->limit(1)->getPdo();
+            if (is_string($pdo)) {
+                // 返回SQL语句
+                return $pdo;
+            }
+            $result = $pdo->fetchColumn();
+            if ($force) {
+                $result = is_numeric($result) ? $result + 0 : $result;
+            }
+            if (isset($cache)) {
+                // 缓存数据
+                $this->cacheData($key, $result, $cache);
+            }
+        } else {
+            // 清空查询条件
+            $this->options = [];
+        }
+        return false !== $result ? $result : $default;
+    }

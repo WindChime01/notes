@@ -1,0 +1,617 @@
+在C:\wamp\www\tp5\application下创建模块
+创文件夹：
+	controller		//控制器  在其中创建php方法内容
+	view		//视图  看到的页面
+	model		//数据模型  数据库的内容
+
+命名：namespace app\模块\控制器	//创建php文件后最优先做的事情
+
+class 类名{		//类名与php文件名一致
+ 
+    public function 方法名(){
+
+	方法内容
+    }
+}
+
+use方法：		//通用
+	use \地址\文件名\		//定义后可以直接以文件名来使用
+
+控制器调用：
+	命名空间：$变量名 = new 路径
+	系统方法：$变量名 = controller('路径')
+
+控制器内方法调用：
+	命名空间：$变量名 = new 路径
+	系统方法：$变量名 = action('路径')
+
+读取配置：
+	系统类：echo \路径\配置文件\::方法（'方法内容'）	//如果配置存在 直接输出，不存在为空数组null
+	系统方法：echo config('方法内容')		//不写内容则默认输出所有配置 
+
+场景配置：
+	在C:\wamp\www\tp5\application\config.php里的    'app_status'             => '',调试环境
+	在C:\wamp\www\tp5\application中新建对应的配置环境
+
+模块配置：
+	在C:\wamp\www\tp5\application\模块 创建配置文件
+
+动态配置：
+	系统方法：config('数组名'，'数组所需要更改的内容')
+
+配置文件中的加载顺序：
+	优先级：动态配置>模块配置>场景配置>扩展配置>应用配置>惯例配置
+	加载顺序：反之
+
+环境配置：		//减少常用配置文件中更改内容的时间
+	利用编辑器在网站根目录(例：tp5)创建.env
+如：在C:\wamp\www\tp5\application\config.php文件中
+	use \think\Env;
+	return [
+	'app_debug'	=> Env::get('app_debug',false),		//应用调试状态
+	'app_status'	=> Env::get('app_status',''),	//应用模式状态
+]；
+
+前后端分离：
+	在C:\wamp\www\tp5\public下新建一个入口文件
+	复制index.php代码
+	在加载框架引导文件之前加上
+	define("BIND_MODULE",'模块名');
+
+隐藏入口文件：
+	1、打开Apache文件夹找到httpd.conf
+	     把LoadModule rewrite_module modules/mod_rewrite.so注释去掉
+
+	2、设置访问权限为所有人
+	     在C:\wamp\bin\apache\apache2.4.9\conf\extra\vhosts.conf设置
+	     <VirtualHost *:80>
+   		 DocumentRoot "C:\wamp\www\tp5\public"
+    		ServerName www.tp.com
+    		<Directory "C:\wamp\www\tp5\public">
+    		Options Indexes FollowSymLinks
+
+    		AllowOverride All
+
+    		Require all granted
+
+    		</Directory>
+	</VirtualHost>
+	3、重启软件后就生效了
+
+TP路由：
+	关闭后台模块使后台模块无法路由  在C:\wamp\www\tp5\public找到入口文件
+	插入\think\App::route(false);	//在加载框架引导文件之后加上
+
+路由模式：
+	在C:\wamp\www\tp5\application\config.php中
+	  // 是否开启路由
+   	 'url_route_on'           => true,
+	 // 是否强制使用路由
+    	'url_route_must'         => false,
+
+	普通模式 false false		//关闭路由，完全使用默认的PATH_INFO 方式URL
+	混合模式 true  false		//开启路由，未定义路由的部分可以使用PATH_INFO方式
+	强制模式 ture  ture		//开启路由，必须定义路由才能访问
+
+路由注册：
+	路由定义规则:
+		Route::rule('路由表达式','路由地址','请求类型','路由参数(数组)','变量规则(数组)')
+动态单个注册：
+		在C:\wamp\www\tp5\application\route.php插入
+
+		1.静态路由：
+
+		use think\Route;
+		Route::rule('路由表达式'，'模块/控制器/方法')
+
+		2.动态路由(带参数的路由):	//注册带参数的路由
+		 Route::rule('路由表达式/:id(变量名)','模块/控制器/方法')
+
+		3.可选参数路由	
+		 Route::rule('路由表达式/[:id(变量名)]','模块/控制器/方法')
+
+		4.完全匹配路由	//路由表达式一致方可访问
+		Route::rule('路由表达式$'，'模块/控制器/方法')
+		
+		5.带额外参数
+		Route::rule('路由表达式'，'模块/控制器/方法?参数名1=参数1&参数名2=参数2')
+		
+ 设置请求类型：
+	TP中的类型：get、post、put、delete
+	支持请求类型请求
+		Route::rule('路由表达式'，'模块/控制器/方法','请求类型')
+		Route::请求类型('路由表达式'，'模块/控制器/方法')
+		
+	支持两种类型形式：Route::rule('路由表达式'，'模块/控制器/方法','请求类型 | 请求类型')
+	支持所有请求类型：Route::rule('路由表达式'，'模块/控制器/方法','*')
+		             Route::any('路由表达式'，'模块/控制器/方法')
+
+动态批量注册：
+		Route::rule([
+		'路由表达式'=>'模块/控制器/方法',
+		'路由表达式'=>['模块/控制器/方法','路由参数(数组)','变量规则(数组)']
+		...
+		],' ', '请求类型' ,'匹配参数(数组)','变量规则');                         
+		                             
+设置路由-配置文件批量注册
+		return [
+			'路由表达式'=>'模块/控制器/方法',
+			'路由表达式'=>'模块/控制器/方法',
+		];
+
+		变量规则：['变量名'=>'\规则']	//d+ 只能数字	w+只能字母
+		路由参数：['method'=>'get','ext'=>'后缀类型(如html)' ]	//路由参数method必须为get
+
+资源路由：
+	声明Route::resource('blog','模块/blog(放控制器目录)')	//blog读博客
+	设置后会自动生成七个路由规则
+	标识	请求类型	生成路由规则	对应操作方法（默认）
+	index	GET	blog		index	//后台展示	
+	create	GET	blog/create	create	//添加页面
+	save	POST	blog		save	//增加操作
+	read	GET	blog/:id		read
+	edit	GET	blog/:id/edit	edit	修改页面
+	update	PUT	blog/:id		update	更新操作
+	delete	DELETE	blog/:id		delete	删除操作
+
+快捷路由：
+	声明Route::controller('blog','模块/blog(放控制器目录)')
+	作用：在方法面前加get,在URL访问中www.tp.com/blog/方法
+ 
+加载控制器：
+
+	系统view类：
+	$view=new \think\view;
+	          return $view->fetch();
+
+	系统controller类
+	1、需要继承系统控制器类
+	use think\Controller;
+	class 类名称 extends Controller
+	2、直接使用系统控制器类的方法
+	return $this->fetch();
+
+	系统函数：
+	return view();
+
+数据输出：
+	在应用配置文件中可以设置数据返回格式
+    	'default_return_type'    => 'json'	// 默认输出html类型
+	ajax请求的时候如何返回数据
+ 	'default_ajax_return'    => 'json'	// 默认JSONP格式返回的处理方法
+
+控制器初始化：		//执行该控制器中的任意方法都会先执行初始化方法
+
+	控制器初始化方法必须继承系统控制器！！
+
+	例子：public function _inintialize(){		//控制器初始化方法
+		内容
+	}
+
+	控制器初始化方法的使用
+		1、可以用来提取控制器下公共的设置
+		2、后台把控
+
+前置操作：	//把一些公共的设置提取成方法进行调用
+
+	前置方法必须继承系统控制器！！
+	protected $beforeActionList=[
+	'方法1'，
+	'方法2'=>['except'=>'方法'],	//不想谁使用前置方法2
+	'方法3'=>['only'=>'方法'],	//仅仅可以让谁使用前置方法3
+	]
+	
+页面跳转：
+	方法所在地址C:\wamp\www\tp5\thinkphp\library\traits\controller\Jump.php
+
+	跳转方式：
+	成功跳转：$this->success('提示信息','跳转地址','用户自定义数据','跳转跳转','header信息')
+	失败跳转：$this->error('提示信息','跳转地址','用户自定义数据','跳转跳转','header信息')
+
+修改成功和失败的样式模板
+	
+		在C:\wamp\www\tp5\application\config.php中找到默认模板页面
+		  'dispatch_success_tmpl'  => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl', //成功页面
+   		  'dispatch_error_tmpl'    => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl', //失败页面
+
+	在原有成功失败模板进行修改：
+		2、在C:\wamp\www\tp5\thinkphp\tpl\dispatch_jump.tpl添加图片路径
+
+			代码例子：<img src="/static/图片名"
+
+		     在C:\wamp\www\tp5\public\static中存储图片
+
+		跳转方法给模板页面的数据
+		$code	返回的状态码 成功1	失败0
+		$msg	页面的提示信息
+		$wait	等待时间
+		$url	指定的跳转页面	默认返回上个页面
+		$data	用户返回的数据
+
+	用户自定义模板修改：
+		1、在C:\wamp\www\tp5\thinkphp\tpl中新建自定义tpl模板文件
+		2、修改文件config.php中的路径 
+		 'dispatch_success_tmpl'  => THINK_PATH . 'tpl' . DS . '需要修改的路径', //成功页面
+		 'dispatch_error_tmpl'    => THINK_PATH . 'tpl' . DS . '需要修改的路径', //失败页面
+
+重定向：
+	在地址C:\wamp\www\tp5\thinkphp\library\traits\controller\Jump.php中有redirect方法
+	作用：重定向就是通过各种方法将各种网络请求重新定个方向转到其他位置
+
+	使用：redirect('跳转地址','其他参数','code','隐士参数')
+	$this->redirect('模块/方法',['id'=??,'name'=>??](地址栏))
+
+
+空控制器和空操作：
+	空操作：			//主要解决一些用户恶意的地址栏输入，报错影响交互
+		public function _empty{
+			$this->redirect('模块/方法')；
+		}
+
+	空控制器：
+		创建一个新的控制器
+		继承系统控制器
+		例子：public function index(){
+			$this->redirect('index/index');
+			}
+		          public function _empty(){
+			$this->redirect('index/index');
+			}
+
+		网站上线的时候每一个控制器都必须添加空操作
+		不论前台后台都需要写一个空控制器
+
+使用命令行：
+	打开cmd面板,切换到网站的根目录下
+	输入php think
+	使用：
+		1、创建控制器
+			php think make:controller app\index\controller\Goods
+		2、创建数据模型
+			php think make:model app\index\model\Goods
+		3、清空runtime临时文件
+			php think clear
+
+资源控制器：
+	1、使用命令行创建控制器
+
+	2、资源路由器一般配合资源路由使用
+
+如何获取请求类：
+	系统函数：$request=request();
+
+	系统Request类：		//因为Request类属于单例模式，所以不能直接new
+		导入Request类
+		use think\Request
+		
+		方法内插入：$request=Request::instance();
+
+	系统控制器类：
+		导入继承系统控制器类
+		在方法后边的框框加入Request $request
+
+获取用户信息请求：		//要使用系统控制类请求方法
+	方法名：getUrl
+	获取域名：		dump($request->domain())
+	获取URL地址，除域名外：	dump($request->url())
+	获取入口文件：		dump($request->baseFile())
+	获取PathInfo路径：		dump($request->pathinfo())
+	获取PathInfo路径 无后缀：	dump($request->path())
+	url地址伪静态后缀：		dump($request->ext())
+
+	伪静态：就是将路径伪装成静态页面，让搜索引擎更好收录网站，防止别人知道网站真实开发语言
+
+获取请求模块\控制器\方法:		//要使用系统控制类请求方法
+	方法名:getInfo
+	控制器：$request->controller()
+	方法:$request->action()
+	模块:$request->module()
+
+获取请求相关类型
+	请求类型：$request->method()
+	请求资源类型：$request->type()
+	访问ip地址：$request->ip()
+	是否ajax请求：$request->isAjax()
+	获取所有地址栏参数：$request->param()
+	获取特定字段：$request->only(['字段1','字段2'])
+	剔除字段：except(['字段1','字段2'])
+
+获取变量：
+	判断是否存在：dump($request->has('变量1','变量2'))
+		       dump(input('?get.id'))
+
+	读取变量:	dump($request->get('变量'))	//获取指定变量
+		dump(input('get.id'))
+
+		dump($request->get())	//获取所有变量
+		dump(input('get.'))
+
+	可以读取数据类型：get、post、delete、put、session、cookie、server 等
+
+	$request->数据类型()
+
+变量的过滤：		//防止恶意输入，防止sql注入
+
+
+	全部的数据进行过滤：
+		$request->filter('htmlspecialchars')	//单个方法过滤
+		$request->filter(['htmlspecialchars','strip_tags'])	//多种方法过滤
+
+	针对变量过滤：
+		$request->get('变量','','htmlspecialchars')
+
+	密码过滤后加密：
+		$request->get('password','','htmlspecialchars,md5')
+
+变量的排除和获取：
+	获取：$request->only('变量')
+	          $request->only('变量'，get)
+	          $request->only(['变量1'，'变量2'],get)
+
+	排除：$request->except('变量')
+	          $request->except('变量'，get)
+	          $request->except(['变量1'，'变量2'],get)
+
+
+变量修饰符：
+	修饰变量的类型：
+		s	字符串
+		d	整型
+		f	浮点型
+		a	数组
+		b	布尔型
+
+	使用：dump(input('get.id/d'))		//强制转换为整型
+	          dump($request->get('id/d'))
+
+
+变量的更改：
+	地址栏变量更改
+	例子：dump($requset->get('id'))	//地址栏输入id=10
+	          dump($request->get(['id'=>20]))
+	          dump($request->get('id'))	//结果输出变量为20
+
+请求类型判断：
+	系统类：$request->is请求类型()
+	系统函数：request()->is请求类型()
+
+模拟请求类型：
+	在html文件中创from 类型必须为post
+	需要设置吟唱与传递模拟请求类型
+	<input type="hideen" name="_method" value="请求类型"	//提交之后就能进行模拟
+
+伪静态：		//URL伪静态通常是为了满足更好的SEO效果，为了网站的安全
+	修改伪静态：
+		在config配置文件中进行修改
+		// URL伪静态后缀
+   		 'url_html_suffix'        => 'html',
+
+参数绑定：		//获取地址栏参数
+	参数绑定的个数，少于地址栏参数的个数
+	参数绑定的名字，必须和地址栏参数名字一一对应
+	例子：public function bangding($id,$name){	//可以直接在括号内$name='admin'设置默认值
+		dump($id);
+		dump($name);
+
+	}
+
+数据库连接：
+	配置文件连接：
+		在C:/wamp/www/tp5/application/database.php配置
+
+	使用方法配置连接：
+		use think\Db;
+		例子：Db::connect([
+			    // 数据库类型
+  			  'type'            => 'mysql',
+   			 // 服务器地址
+   			 'hostname'        => '127.0.0.1',
+   			 // 数据库名
+  			  'database'        => 'wt',
+    			// 用户名
+   			 'username'        => 'root',
+    			// 密码
+  			  'password'        => '',
+    			// 端口
+   			 'hostport'        => '3306',
+		])
+	使用字符串连接：$Db=Db::connect("数据库类型://用户名:密码@服务器地址:端口/数据库名#字符集(utf8)")
+
+	使用模型连接数据库：在model目录下创数据模型文件
+		语句：
+		   方法一：	protected $connection=[
+			 // 数据库类型
+  			  'type'            => 'mysql',
+   			 // 服务器地址
+   			 'hostname'        => '127.0.0.1',
+   			 // 数据库名
+  			  'database'        => 'wt',
+    			// 用户名
+   			 'username'        => 'root',
+    			// 密码
+  			  'password'        => '',
+    			// 端口
+   			 'hostport'        => '3306',
+			]
+		方法二：	protected $connection="数据库类型://用户名:密码@服务器地址:端口/数据库名#字符集(utf8)"
+
+	控制器使用：
+		$user new \app\模块\model\数据模型文件();
+	
+	添加数据库：例子：$Db=$user::execute("insert into db_admin values(null,'fl','123456')");
+	
+	删除数据库：例子：$Dc=$user::execute("delete from db_admin where id=3");
+
+	修改数据库：例子：$Db=$user::execute("update db_admin set username='FL',password='456123' where id=4");
+	
+	查询数据库：例子：$data=$user::query("select * from db_admin")
+	TP方法：
+		use think\Db;
+		$DB=new Db;
+		$data=$DB::table("表名")->select()
+
+	使用sql语句:
+		$data=$Db::query("select * from 表名")
+模型类定义：
+	创建数据模型：
+		命令行创建：
+			打开cmd切换到项目目录tp5
+			执行命令:php think make:model app\模块\model\模型文件名
+		手动创建：
+			打开数据模型目录：C:/wamp/www/tp5/application/模块/model/新建
+			
+验证器：
+	导入系统验证器：use think\Validate
+	实例化验证器类：$validate=new Validate([
+			"usename"=>"require|length:6,12",
+			"password"=>"require|confirm:repassword"
+		]);
+
+缓存：		//减少数据库压力，用户交互速度提升
+	支持的缓存文件类型：
+	
+	缓存设置：C:/wamp/www/tp5/application/config.php中设置
+			'cache' 	   => [
+      			  // 驱动方式
+      			  'type'   => 'File',
+      			  // 缓存保存目录
+     			   'path'   => CACHE_PATH,
+        			// 缓存前缀
+      			  'prefix' => '',
+      			  // 缓存有效期 0表示永久缓存
+        			'expire' => 0,
+  			  ]
+		
+	使用：	
+		导入缓存类：use think\Cache;
+		先查询数据表
+		方法一：Cache::set('缓存名字',查询数据表的$命名，200(时间，单位秒))
+	
+		方法二：cache('缓存名字',查询数据表的$命名,200(时间，单位秒))
+		
+		创建view页面;
+
+		例子：if($data=cache('缓存名字')){
+
+			}else{
+				$this->assign("data",$data);
+				$user= new \app\index\model\Goods();
+				$data=$user::query("select * from db_mentor order by id desc");
+				cache('Index',$data,20);
+				}
+
+			$this->assign('data',$data);		//分配数据
+
+			return $this->fetch();
+		
+		
+	读取：
+		方法一：Cache::get('缓存名字')；
+		方法二：cache('缓存名字')
+
+	删除缓存：
+		方法一：Cache::rm('缓存名字')
+		方法二：cache('缓存名字',null)
+
+	清空缓存：Cache::clear()	
+
+Session:
+
+		//name=自由命名
+
+	设置：
+		设置session类：use think\Session;
+		创建新方法设置session	
+		设置方法一：Session::set('name','内容')
+		设置方法二：session('name','内容')
+
+	获取：
+		创建新方法获取
+		获取方法一：Session::get('name')
+		获取方法二：session('name')
+
+	判断是否设置：
+		创建新方法设置判断
+		判断方法一：Session::has('name')
+		判断方法二：session("?name")
+
+
+	删除：
+		创建新方法设置判断
+		删除方法一：Session::delete('name')
+		删除方法二：session('name',null)
+		
+	清空：
+		清空方法一：Session::clear();
+		清空方法二：session(null);
+
+
+Cookie:
+	新建cookies控制器
+	导入系统控制器：user think\Controller
+		          use think\Cookie
+	C:/wamp/www/tp5/application/config.php中设置
+	'cookie'                 => [
+        		// cookie 名称前缀
+        		'prefix'    => '',
+      	 	 // cookie 保存时间
+       		 'expire'    => 0,
+     		   // cookie 保存路径
+     		  'path'      => '/',
+      		  // cookie 有效域名
+     		   'domain'    => '',
+    		    //  cookie 启用安全传输
+  	 	     'secure'    => false,
+    	 	   // httponly设置
+  	 	     'httponly'  => '',
+    	 	   // 是否使用 setcookie
+     	  	 'setcookie' => true,
+  	  ]
+
+	方法一：Cookie::set('名称','内容')
+	             Cookie::set('名称','内容',时间(单位秒))
+
+	方法二：cookie('名称','内容')
+	             cookie('名称','内容',时间(单位秒))
+
+	获取：
+		方法一：Cookie::get('名称')
+		方法二： cookie('名称')
+		
+	判断是否存在：
+		方法一：Cookie::has('名称')
+		方法二：cookie("?名称")
+
+	删除：
+		方法一：Cookie::delete('名称')
+		方法二：cookie('名称',null)
+
+	清空：
+		方法一：Cookie::clear()
+		方法二：cookie(null)
+	
+分页：
+	在控制器中加入：$data=Db::table('表名')->paginate(6(一页显示六个)，trun(没有页数只有上下页))
+	在view视图中加入：{$data->render()}
+
+
+系统类：C:\wamp\www\tp5\thinkphp\library\think
+
+	Config 	设置和获取配置文件
+	Env	环境变量
+	Controller	控制器
+	View	
+	Route	路由
+	URL	地址生成
+	Request
+系统方法：C:\wamp\www\tp5\thinkphp\helper.php
+
+	Controller()	实例化控制器
+	action()		调用模块的操作方法
+	config()		设置和获取配置
+	dump()		浏览器友好的变量输出
+	url()		生成url地址
+	view()		加载页面
+	request()		实例化 Request类
+	
+	

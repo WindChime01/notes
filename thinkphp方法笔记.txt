@@ -1,0 +1,22 @@
+//应用程序初始化
+APP类
+
+//获取请求信息（很实用）
+Request类
+
+使用方法：use think\Request;
+
+//缓存
+Cache类
+
+使用方法：use think\Cache;
+
+//数据库
+Db类
+
+使用方法：use think\Db;
+
+//插件
+Hook类
+
+使用方法：use think\Hook;

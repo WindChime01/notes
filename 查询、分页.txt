@@ -1,0 +1,35 @@
+//查询
+
+$where = "1 = 1";
+通常例子
+I('post.user_id') ? $where .= " AND user_id = ".I('post.user_id') : false;
+
+//时间例子
+$timegap = I('timegap');		//（timegap: 2023-01-31 00:00:00 - 2023-03-17 00:00:00）
+if($timegap){
+            $gap = explode(' - ', $timegap);		//去掉-
+            $begin = $gap[0];
+            $end = $gap[1];
+            $where['change_time'] = array('between',array(strtotime($begin),strtotime($end)));
+        }
+
+//分页
+use think\Page;		//引入分页类
+$count = M('users')->where($where)->count();
+$Page  = new Page($count,15);
+$show = $Page->show();
+
+//最后
+
+//查询数据
+$userList = M('users')->where($where)->order($sort_order)->limit($Page->firstRow.','.$Page->listRows)->select();
+//渲染
+$this->assign('page',$show);// 赋值分页输出
+$this->assign('pager',$Page);	//用来显示有多少条数据
+
+
+在h5页面需要的地方加上
+
+<h5>(共{$pager->totalRows}条记录)</h5>		//h5为html标题标签
+
+在表单最后的div结束前加{Page}

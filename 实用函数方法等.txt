@@ -1,0 +1,264 @@
+//实用内置函数
+rand(1,10000)		//随机整数（例子1到一万之间随机）
+strtotime()			//获取时间戳（转换格式为：2023-4-28 9:55:50）
+date('Y-m-d H:i:s')		//将时间戳以这种形式转换（y为年 m为月 d为日 H为小时 i为分 s为秒）
+floatval()			//将数字转换成float格式
+intval()			//将数字转换成int整型格式
+ceil()			//向上舍入为最接近的整数
+isset()			//用于检测变量是否已设置并且非NULL
+is_numeric()		//用于检测变量是否为数字
+trim()			//移除字符串两侧的字符
+make_md5_str(8)		//生成指定长度随机字符串（例子8位字符串）
+unset()			//销毁指定变量（可以销毁多个变量，不能删除常量）
+explode('分隔符','字符串')	//将字符串按照指定的分隔符进行拆分后返回数组
+implode('分隔符',数组)	//将数组的所有元素按照指定的分隔符连接在一起
+
+//array方法
+array_push()		//向数组末尾添加一个或多个值
+array_pop()		//返回数组末尾的元素
+array_shift()		//返回数组开头的元素
+array_unshift()		//向数组开头添加一个或多个值
+array_slice()		//返回数组中的一段元素 写法:array_slice('数组','开始下标','返回数量')
+array_splice()		//删除或替换数组中的一段元素，并可以在该位置插入新元素
+array_merge()		//将两个或多个数组合并为一个数组
+array_diff()		//返回两个或多个数组之间的差异
+array_intersect()		//返回两个或多个数组之间的交集
+array_keys()		//返回一个数组的所有键
+array_values()		//返回一个数组的所有值
+array_search()		//在数组中查找指定值，并返回该键
+array_reverse()		//返回一个倒序排列的数组
+in_array()			//判断一个值是否存在于数组中
+
+//循环结束方法
+continue			//放弃本次循环进行下一次循环
+baeak			//终止循环并立即跳出循环
+die与exit()			//两个名字为同一函数,结束程序执行
+return			//结束代码并返回参数
+
+thinkphpSQL方法
+//查询条件
+where(['字段'=>'数据','字段'=>'数据']);
+//细致查询方法
+where(['字段'=>['方法',['数据']]])
+//where方法
+in		//指定查询表内容
+between		//指定一定范围（多用在选取时间）
+like		//模糊查询
+eq		//等于
+neq		//不等于
+gt		//大于
+egt		//大于等于
+lt		//小于
+elt		//小于等于
+notnull 		//不为null
+null		//为null
+
+//指定字段
+field('字段,字段')
+//排序
+order('字段 asc')	//只写字段默认asc		asc从小到大 desc从大到小		
+//偏移行
+limit('数字1,数字2')	//只写数字1默认只获取数量，填写数字2后则变成数字1是偏移量，数字2为数量
+//给当前数据表命名
+alias('命名')
+//多表查询（注意不起眼的.）
+join('连表名 a','当前表名.与连表名相同数据字段 = 连表名.与当前表名相同数据字段')	//a为命名写不写都行
+//过滤获取到的数据（挺实用）
+allowField()		//需要在db/Query类中写入方法，具体用法自查
+//排除指定字段
+withoutField()		//最低支持tp5
+//关联模型查询
+with()			
+
+//查询一条数据
+find()
+//查询数据不存在时返回空数组
+findOrEmpty()
+//查询多条数据
+select()
+//查询单个字段
+getField('字段名')		//需要在db/Query类中写入方法
+//求和
+sum('字段名')
+//统计多少条数据
+count()
+//添加数据
+add('数据数组')		//需要在db/Query类中写入方法
+//添加数组或修改数组
+save('数据数组')或save(['字段名'=>'修改内容','字段名'=>'修改内容'])
+//删除数据
+delete()
+//得到某个字段的值
+value()			//需要在db/Query类中写入方法
+//分页
+paginate()			//详情看另一份笔记
+//增加
+setInc()			//默认增加1
+//减少
+setDec()			//默认减少1
+
+//模板变量赋值 assign
+例子：$this->assign('list',$list);
+公共方法：    
+protected function assign($name,$value='') {
+
+        $this->view->assign($name,$value);
+
+        return $this;
+
+    }
+//模板显示 调用内置的模板引擎显示方法
+例子：$this->display();
+    protected function display($templateFile='',$charset='',$contentType='',$content='',$prefix='') {
+
+        $this->view->display($templateFile,$charset,$contentType,$content,$prefix);
+
+    }
+//Ajax方式返回数据到客户端（超实用）
+function ajaxReturn($data){
+    header('Content-Type:application/json; charset=utf-8');
+    exit(json_encode($data));
+}
+//Ajax方式返回数据到客户端（超实用）
+    protected function ajaxReturn($data,$type='') {
+
+        if(func_num_args()>2) {// 兼容3.0之前用法
+
+            $args           =   func_get_args();
+
+            array_shift($args);
+
+            $info           =   array();
+
+            $info['data']   =   $data;
+
+            $info['info']   =   array_shift($args);
+
+            $info['status'] =   array_shift($args);
+
+            $data           =   $info;
+
+            $type           =   $args?array_shift($args):'';
+
+        }
+
+        if(empty($type)) $type  =   C('DEFAULT_AJAX_RETURN');
+
+        switch (strtoupper($type)){
+
+            case 'JSON' :
+
+                // 返回JSON数据格式到客户端 包含状态信息
+
+                header('Content-Type:application/json; charset=utf-8');
+
+                exit(json_encode($data));
+
+            case 'XML'  :
+
+                // 返回xml格式数据
+
+                header('Content-Type:text/xml; charset=utf-8');
+
+                exit(xml_encode($data));
+
+            case 'JSONP':
+
+                // 返回JSON数据格式到客户端 包含状态信息
+
+                header('Content-Type:application/json; charset=utf-8');
+
+                $handler  =   isset($_GET[C('VAR_JSONP_HANDLER')]) ? $_GET[C('VAR_JSONP_HANDLER')] : C('DEFAULT_JSONP_HANDLER');
+
+                exit($handler.'('.json_encode($data).');');  
+
+            case 'EVAL' :
+
+                // 返回可执行的js脚本
+
+                header('Content-Type:text/html; charset=utf-8');
+
+                exit($data);            
+
+            default     :
+
+                // 用于扩展其他返回格式数据
+
+                tag('ajax_return',$data);
+
+        }
+
+    }
+
+曾写例子：
+/**
+ * 查询所有上级
+ */
+function  up_downline($user_id){
+    $id = db::name('dealer_user')->where('user_id',$user_id)->value('referee_id');        //第一个上级
+    // dump($id);
+    $arr = $id;
+    $up_id = [];
+    while($arr){
+        $superior = db::name('dealer_user')->where(['user_id'=>$arr])->value('referee_id');      //上级ID
+     //   dump($superior);
+        $up_id[] = $arr;
+        $arr = $superior;
+    }
+    return $up_id;
+ }
+ /**
+ * 查询所有下级
+ */
+function downline($user_id){
+    $user = db::name('dealer_user')->field('user_id,referee_id')->select();
+    $arr = [$user_id];
+    foreach ($user as $val){
+        if(in_array($val['referee_id'],$arr)){
+            $arr[] = $val['user_id'];
+        }
+    }
+    unset($user);
+    return $arr;
+}
+/**
+ * 级差分佣奖励
+ */
+function reward($user_id,$goods,$order_id,$order_type,$wxapp_id){               //分佣金(1-用户id 2-商品总金额(不含运费) 3-订单id 4-订单类型 5-wxapp_id)
+$up_downline = up_downline($user_id);           //获取上级ID
+// dump($a);
+// dump($up_downline);
+$levels = 0;
+$rewards =0;
+foreach ($up_downline as $val){
+    $level = db::name('user')->where(['user_id'=>$val])->value('grade_id');         //上级等级
+    $amount = db::name('user_grade')->where(['grade_id'=>$level])->value('commission');         //上级佣金比率
+    $amount = $amount/100;
+    // dump($level);die;
+    if($level>$levels){
+        $reward =  $goods*$amount-$rewards;             //分佣奖励
+        // dump($amount);die;
+        $rewards = $reward;
+        // dump($rewards);
+        $levels = $level;
+    if($reward>0){
+        $data = [
+                'first_user_id'=>$val,                //上级id
+                'user_id'=>$user_id,             //买家id
+                'order_id'=>$order_id,          //订单id
+                'order_type'=>$order_type,               //订单类型
+                'order_price'=>$goods,          //订单总金额
+                'first_money' => $reward,
+                'wxapp_id'=>$wxapp_id,
+                'create_time' => time(),
+                'update_time' =>time(),
+                'date_create_time'=>date('Y-m-d H:i:s',time()),
+            ];
+            db::name('dealer_order')->add($data);
+            // return array("msg"=>"奖励发放成功","success"=>1);
+        // echo 'id'.$val.'获得佣金'.$reward.'<br>';
+    }
+    }
+
+}
+}

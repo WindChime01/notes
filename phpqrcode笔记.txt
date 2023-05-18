@@ -1,0 +1,75 @@
+//在数据库中存储base64码需要用text属性类型
+//html页输出base64图片
+
+<img width="40" height="30" src="data:image/png;base64,$base64" />		//$base64 = 输出的base64值 
+//普通的跳转页面二维码
+        public function qrcode(){
+            header('content-type:text/html;charset=utf-8');
+            $data = 'https://www.baidu.com/';
+            $level = 'Q';// 纠错级别：L、M、Q、H
+            $size = 10;//元素尺寸
+            include_once "plugins/phpqrcode/phpqrcode.php";
+            QRcode::png($data,false,$level,$size,true);
+        }
+//后端获取并base64加密返回数据
+        public function basecode(){
+        $url = 'https://www.baidu.com/';
+        //打开缓冲区
+        ob_start();
+        //生成二维码图片
+        include_once "plugins/phpqrcode/phpqrcode.php";
+        $returnData = QRcode::pngString($url,false, "H", 8);
+        //这里就是把生成的图片流从缓冲区保存到内存对象上，使用base64_encode变成编码字符串，通过json返回给页面。
+        $imageString = base64_encode(ob_get_contents());
+        //关闭缓冲区
+        ob_end_clean();
+        return $imageString;
+        }
+//在phpqrcode.php文件中添加以下内容
+class QRimage：
+        public static function pngString($frame, $filename = false, $pixelPerPoint = 4, $outerFrame = 4,$saveandprint=FALSE) 
+        {
+            $image = self::image($frame, $pixelPerPoint, $outerFrame);
+            
+            if ($filename === false) {
+                ImagePng($image);
+            } else {
+                if($saveandprint===TRUE){
+                    ImagePng($image, $filename);
+                    ImagePng($image);
+                }else{
+                    ImagePng($image, $filename);
+                }
+            }
+            
+            ImageDestroy($image);
+        }
+class QRcode：
+        public static function pngString($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4, $saveandprint=false) 
+        {
+            $enc = QRencode::factory($level, $size, $margin);
+            return $enc->encodePNGString($text, $outfile, $saveandprint=false);
+        }
+class QRencode：
+        public function encodePNGString($intext, $outfile = false,$saveandprint=false) 
+        {
+            try {
+            
+                ob_start();
+                $tab = $this->encode($intext);
+                $err = ob_get_contents();
+                ob_end_clean();
+                
+                if ($err != '')
+                    QRtools::log($outfile, $err);
+                
+                $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
+                
+                QRimage::pngString($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint);
+            
+            } catch (Exception $e) {
+            
+                QRtools::log($outfile, $e->getMessage());
+            
+            }
+        }

@@ -1,0 +1,59 @@
+curl_init		//初始化 cURL 会话。
+例子：$ch = curl_init();
+
+curl_setopt		//设置 cURL 传输选项
+CURLOPT_HTTP_VERSION	//CURL_HTTP_VERSION_NONE (默认值，让cURL自己判断使用哪个版本)
+CURL_HTTP_VERSION_1_0 (强制使用 HTTP/1.0)
+CURL_HTTP_VERSION_1_1 (强制使用 HTTP/1.1)
+例子：curl_setopt( $ch, CURLOPT_HTTP_VERSION , CURL_HTTP_VERSION_1_1 );
+
+CURLOPT_USERAGENT	//在HTTP请求中包含一个"User-Agent: "头的字符串
+例子：curl_setopt( $ch, CURLOPT_USERAGENT , 'JuheData' );
+
+CURLOPT_CONNECTTIMEOUT		//在发起连接前等待的时间，如果设置为0，则无限等待
+例子：curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT , 60 );
+
+CURLOPT_TIMEOUT			//设置cURL允许执行的最长秒数
+例子：curl_setopt( $ch, CURLOPT_TIMEOUT , 60);
+
+CURLOPT_RETURNTRANSFER		//将curl_exec()获取的信息以文件流的形式返回，而不是直接输出
+例子：curl_setopt( $ch, CURLOPT_RETURNTRANSFER , true );
+
+CURLOPT_FOLLOWLOCATION		//启用时会将服务器服务器返回的"Location: "放在header中递归的返回给服务器，使用CURLOPT_MAXREDIRS可以限定递归返回的数量
+例子： curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+CURLOPT_POST	//启用时会发送一个常规的POST请求，类型为：application/x-www-form-urlencoded，就像表单提交的一样
+例子：curl_setopt( $ch , CURLOPT_POST , 1);
+
+CURLOPT_POSTFIELDS	//全部数据使用HTTP协议中的"POST"操作来发送。要发送文件，在文件名前面加上@前缀并使用完整路径。这个参数可以通过urlencoded后的字符串类似'para1=val1&para2=val2&...'或使用一个以字段名为键值，字段数据为值的数组。如果value是一个数组，Content-Type头将会被设置成multipart/form-data
+例子：curl_setopt( $ch , CURLOPT_POSTFIELDS , $params );		//$params[请求的参数]
+
+CURLOPT_SSL_VERIFYPEER	//禁用后cURL将终止从服务端进行验证。使用CURLOPT_CAINFO选项设置证书使用CURLOPT_CAPATH选项设置证书目录 如果CURLOPT_SSL_VERIFYPEER(默认值为2)被启用，CURLOPT_SSL_VERIFYHOST需要被设置成TRUE否则设置为FALSE
+例子：curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+CURLOPT_SSL_VERIFYHOST	//1 检查服务器SSL证书中是否存在一个公用名(common name)。译者注：公用名(Common Name)一般来讲就是填写你将要申请SSL证书的域名 (domain)或子域名(sub domain)。2 检查公用名是否存在，并且是否与提供的主机名匹配
+例子：curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
+CURLOPT_HTTPHEADER	//一个用来设置HTTP头字段的数组。使用如下的形式的数组进行设置： array('Content-type: text/plain', 'Content-length: 100')
+例子：        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/x-www-form-urlencoded',
+            //'Content-Type: application/x-www-form-urlencoded;charset=UTF-8',
+            //'Accept: application/json',
+            //'CLIENT-IP:' => '211.72.227.230',
+            //'X-FORWARDED-FOR:' => '211.72.227.230',
+        ]);
+
+CURLOPT_HEADER	//启用时会将头文件的信息作为数据流输出
+例子：curl_setopt($ch, CURLOPT_HEADER, 0);
+
+CURLOPT_URL	需要获取的URL地址，也可以在curl_init()函数中设置。
+例子：curl_setopt( $ch , CURLOPT_URL , $url );
+
+curl_exec		//返回 true / false，curl_setopt 设置 CURLOPT_RETURNTRANSFER 为 TRUE 时将 curl_exec() 获取的信息以字符串返回
+
+curl_getinfo 	// 获取一个cURL连接资源句柄的信息
+CURLINFO_HTTP_CODE 	// 最后一个收到的HTTP代码
+
+curl_close		//关闭 cURL 会话
+
+最后return	出curl_exec获取到的值

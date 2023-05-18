@@ -1,0 +1,22 @@
+1.在siteinfo.js文件中改动api地址及商城ID
+
+2.在微信公众平台设置能https的合法域名
+
+3.微信支付，注册商户号和关联商户号
+
+注意获取到的apiclient_cert.pem和apiclient_key.pem文件内容上传到后台
+
+注意API密钥文件
+
+微信头像显示问题
+//在wxml中
+<image src="{{ userInfo.avatarUrl }}"></image>
+
+微信昵称显示问题
+//在wxml中
+<text class="user-header-cont-name">{{ userInfo.nickName }}</text>
+
+微信分享页问题
+//在js中
+onShareAppMessage下加
+imageUrl:"/images/logo.png",

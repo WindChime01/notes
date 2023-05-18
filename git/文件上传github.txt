@@ -1,0 +1,20 @@
+1.找到项目根目录
+
+2.执行下列命令
+//1.git init执行完毕后，本地项目中会出现一个.git文件
+git init 
+//2.将项目所有文件添加到缓存区。注意add和.之间有空格，也可以添加单个文件git add 文件路径
+git add .
+//3.
+git commit -m "这里写该操作的备注信息"
+//4.将本地项目与git上项目关联，这里的https://github.com/WindChime01/仓库名称.git就是github上创建的仓库地址（首先得先创建仓库）
+git remote add origin https://github.com/WindChime01/仓库名称.git
+//5.将缓存区的代码提交到关联的仓库，执行该操作会弹出让你输入用户名和密码，输入github的用户名和登录密码就行
+git push -u origin master
+PS：
+①第5步中如果出现以下报错，是因为你的github仓库名字和本地的项目名字不一致，
+执行git pull --rebase origin master合并再执行git push -u origin master即可
+
+②报fatal: remote origin already exists.错误，输入git remote -v查看远程库信息是否与自己一至，
+不一致，先输入$ git remote rm origin(删除关联的origin的远程库)
+后再从第四步开始进行操作即可

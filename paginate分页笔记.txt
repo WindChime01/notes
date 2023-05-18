@@ -1,0 +1,24 @@
+paginate($listRows, $simple, $config)其中参数含义如下： 
+ 
+-  $listRows ：每页显示的记录数，默认值为 15。 
+-  $simple ：是否启用简洁模式，默认为 false，表示启用详细分页模式。 
+-  $config ：分页配置，用于自定义分页样式和 URL 参数等设置。 
+
+php例子：
+$list = $article->paginate(10); // 每页显示10条记录
+$this->assign('list', $list);
+return $this->fetch();
+
+html例子：
+<volist name="list" id="article">
+  <div class="item">
+    <!-- 显示分页数据 -->
+    <h2>{$article.title}</h2>
+    <p>{$article.content}</p>
+  </div>
+</volist>
+ <!-- 显示分页链接 -->
+{$list.render()}
+
+使用  volist  循环遍历  $list  数组，将每个元素存储在  $article  变量中，
+并输出分页数据。最后，通过  {$list.render()}  输出分页链接。

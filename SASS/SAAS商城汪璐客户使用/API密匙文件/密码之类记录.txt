@@ -1,0 +1,14 @@
+小程序账号：1105984283@qq.com
+小程序密码：22185167aaa
+
+小程序ID(小程序ID)：wx993436d3db8f9889
+AppSecret(小程序密钥) :127447f8c2d021b7ccb5f39c35e336c8
+
+后台账号：admin0907
+后台密码：123456
+
+API安全操作密码：965785
+
+APIv2密匙:84pl123saA841321456klxus89a5z126
+
+APIv3密匙:qw465A4897sd465134ahxilk851asvcx

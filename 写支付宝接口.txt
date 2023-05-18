@@ -1,0 +1,26 @@
+//先创建一个公共文件夹、创一个Config文件在里面配置公共信息
+require_once("common/Config.php");
+
+        $alipayConfig = new AlipayConfig();
+        $alipayConfig->setServerUrl(ZfbConfig::ServerUrl);	//网关
+        $alipayConfig->setAppId(ZfbConfig::AppId);		//AppId
+        $alipayConfig->setPrivateKey(ZfbConfig::PrivateKey);	//私钥
+        $alipayConfig->setFormat(ZfbConfig::Format);		//josn
+        $alipayConfig->setAlipayPublicKey(ZfbConfig::AlipayPublicKey);	//公钥
+        $alipayConfig->setCharset(ZfbConfig::Charset);	//编码格式
+        $alipayConfig->setSignType(ZfbConfig::SignType);	//签名算法
+        $alipayClient = new AopClient($alipayConfig);		//把信息汇总入AopClient文件
+        $request = new AlipayTradeFastpayRefundQueryRequest();	//实例化要调用方法的文件
+        $request->setBizContent("{".				//传输该接口所需信息，具体内容看文档
+            "\"trade_no\":\"2014112611001004680073956707\",".
+            "\"out_request_no\":\"HZ01RF001\"".
+        "}");
+        $responseResult = $alipayClient->execute($request);	//公共回调
+        $responseApiName = str_replace(".","_",$request->getApiMethodName())."_response";	获取方法名，将其中的.改成_在最后加上_response
+        $response = $responseResult->$responseApiName;	//哪个接口的回调
+        if(!empty($response->code)&&$response->code==10000){	//根据$response->code获取回调code判断是否成功
+            echo("调用成功");
+        }
+        else{
+            echo("调用失败");
+        }

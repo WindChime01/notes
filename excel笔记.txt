@@ -1,0 +1,105 @@
+    /**
+ * 导出excel
+ * @param $strTable	表格内容
+ * @param $filename 文件名
+ */
+function downloadExcel($strTable,$filename)			//公共方法
+{
+	header('Cache-Control: max-age=0');
+	header("Content-type: application/vnd.ms-excel");
+	header("Content-Type: application/force-download");
+	header("Content-Disposition: attachment; filename=".$filename."_".date('YmdHis').".xlsx");
+	header('Expires:0');
+	header('Pragma:public');
+	echo '<html><meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'.$strTable.'</html>';
+}
+//导出excel
+    public function cha(){
+        
+        $strTable ='<table width="500" border="1">';
+        $strTable .= '<tr>';
+        $strTable .= '<td style="text-align:center;font-size:12px;width:120px;">会员ID</td>';
+        $strTable .= '<td style="text-align:center;font-size:12px;width:120px;">会员账号</td>';
+        $strTable .= '<td style="text-align:center;font-size:12px;width:120px;">会员姓名</td>';
+        $strTable .= '<td style="text-align:center;font-size:12px;width:120px;">领导人</td>';
+        $strTable .= '</tr>';
+        
+        $username = 'ZW7320851';
+        $userinfo = M('users')->where('username',$username)->find();
+        $downids = $this->getLeaderDown($userinfo['user_id'],false);
+        foreach ($downids as $val){
+            $user = M('users')->where('user_id',$val)->field('username,truename,leader_if')->find();
+            //dump($user);
+                $strTable .= '<tr>';
+                $strTable .= '<td style="text-align:center;font-size:12px;">'.$val.'</td>';
+                $strTable .= '<td style="text-align:left;font-size:12px;">'.$user['username'].' </td>';
+                $strTable .= '<td style="text-align:left;font-size:12px;">'.$user['truename'].'</td>';
+                $strTable .= '<td style="text-align:left;font-size:12px;">'.(!empty($user['leader_if']) ? '是' : '否').'</td>';
+                $strTable .= '</tr>';
+        }
+        $strTable .='</table>';
+        downloadExcel($strTable,$username.'伞下会员情况');
+        exit();
+    }
+//导入excel
+    public function excel(){
+    die;
+    $lujin = dirname(dirname(dirname(dirname(__FILE__)))).'/PHPExcel-1.8/PHPExcel/';
+    include $lujin.'IOFactory.php';
+    
+    $inputFileName = '/www/wwwroot/saas_test.weiyintest.com/saas/source/PHPExcel-1.8/测试导入.xlsx';
+    date_default_timezone_set('PRC');
+    // 读取excel文件
+    
+    $inputFileType = \PHPExcel_IOFactory::identify($inputFileName);
+    $objReader = \PHPExcel_IOFactory::createReader($inputFileType);
+    $objPHPExcel = $objReader->load($inputFileName);
+    
+    
+    // 确定要读取的sheet，什么是sheet，看excel的右下角，真的不懂去百度吧
+    $sheet = $objPHPExcel->getSheet(0);
+    $highestRow = $sheet->getHighestRow();
+    $highestColumn = $sheet->getHighestColumn();
+    // dump($highestRow);
+    $all = array();
+    $keys = [
+      0 => "user_id",
+      1 => "nickName",
+    ];
+    $count =0;
+    // 获取一行的数据
+    for ($row = 2; $row <= $highestRow; $row++){
+        // Read a row of data into an array
+        
+        $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+        // dump($rowData);die;
+        if($row == 1) {
+            // $keys = $rowData[0];
+        } else {
+            // dump($rowData);die;
+            foreach ($rowData[0] as $key=>$val) {
+                $rowData[0][$keys[$key]] = $val;
+                unset($rowData[0][$key]);
+            }
+            $all[] = $rowData[0];
+        }
+        // if($row >= 10) break;
+    }
+    $allcount = count($all);
+    // dump($allcount);die;
+    foreach ($all as $val) {			//写入数据，实际已应用为主
+        $data = [
+            'nickName'=>'测试',
+            'wxapp_id'=>10006,
+            'create_time'=>time(),
+            'update_time'=>time(),
+            ];
+            // dump($data);die;
+        $add = db::name('user')->add($data);
+        if($add){
+            $count++;
+        }
+    }
+    echo '共'.$allcount.'条数据'.'<br>'.'已成功导入'.$count.'条数据';
+    exit;
+}

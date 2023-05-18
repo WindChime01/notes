@@ -1,0 +1,59 @@
+//进入layui官网进行下载
+http://layui.org.cn/
+
+//引入js.文件
+<script type="text/javascript" src="/Public/ybt/js/layui.js"></script>
+
+//script语句开头写
+<script type="text/javascript">
+
+//点击后页面已弹窗的形式出现
+    function all_prize(){
+        layer.open({
+            title: "所有奖品",	//弹窗头
+            type: 2,		//0（信息框，默认）1（页面层）2（弹出层直接调用其他地方的页面）3（加载层）4（tips层）
+            area: ['350px',"400px"],
+            content:"/index/index/all_prize"
+        })
+    }
+layer.open常用方法
+    btn: ['确定', '取消'], //按钮组
+    shade: 0.4,   //遮罩透明度
+    content: $("#test"),//支持获取DOM元素
+    scrollbar: false ,//屏蔽浏览器滚动条
+    
+    yes: function(index){//layer.msg('yes');    //点击确定回调
+        layer.close(index);
+        showToast();
+		function fafang(){
+		layer.confirm("确定要发放奖励吗。",function(){
+			$.ajax({
+				url: "/Auto/Timing/income",
+				type: "POST",
+				success: function(res){
+					layer.closeAll();
+					layer.msg(res.msg,{time:1500},function(){
+						if (res.status == 1){
+							window.parent.location.reload();
+						}
+					})
+				}
+			})
+		})
+	}
+//提交数据并获取回调数据显示
+    layui.use(['layer','jquery','form'],function(){
+        var layer = layui.layer;
+        var jquery = layer.jquery;
+        var form = layui.form;
+        form.render("select");
+        form.on('submit(s)',function(data){
+            $.post("/index/add/bank",(data.field),function(res){
+            layer.msg(res.msg ? res.msg :'请求失败',{time:1500},function(){
+            if (res.success == 1){
+	window.parent.location.reload();
+	}
+            })
+        });
+        });
+    });
