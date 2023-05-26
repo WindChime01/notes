@@ -1,7 +1,8 @@
-strtotime(date('Ymd'));    // 今天零点时间戳
-strtotime(date('Ymd',time()-86399));  //昨日零点时间戳
-strtotime(date('2023-4-6'));	//将时间转换为时间戳
-date('Y-m-d H:i:s',时间戳);	//将时间戳转换为时间
+strtotime(date('Ymd'));    		// 今天零点时间戳
+strtotime(date('Ymd',time()-86399));  	//昨日零点时间戳
+strtotime(date('2023-4-6'));		//将时间转换为时间戳
+date('Y-m-d H:i:s',时间戳);		//将时间戳转换为时间
+
 一小时：3600
 一天：86400
 一周：604800
