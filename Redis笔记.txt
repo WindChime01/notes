@@ -1,0 +1,21 @@
+Redis事务
+
+$redis = \think\Cache::store('redis')->handler();		//连接Redis
+$redis->multi();					//开启Redis事务
+$redis->exec();					//提交Redis事务
+$redis->discard();					//回滚Redis事务
+
+cache使用方法
+
+cache('key','value',$expire);		//将数据$value写入Redis缓存中，键名为'key'（自己起），有效期为$expire秒
+cache('key',null);			//删除Redis缓存中键名为'key'的数据
+cache('key');			//读取Redis缓存中键名为'key'的数据
+cache('key', 'value');			//更新Redis缓存中键名为'key'的数据，如果该键不存在，则会创建一个新的键值对
+cache('key', 'value', $expire,$type);	//将数据$value写入Redis缓存中，键名为'key'，有效期为0，表示该数据永久有效，有效期为-1，表示该数据不缓存，直接返回$value,$type是数据结构类型
+$type = 'list,hash,set,zset';
+
+ps:$type的类型分别为：'列表，哈希表，集合，有序集合';
+- 列表（List）：列表是一个有序的字符串列表，可以在列表的两端进行插入和删除操作，常用于实现队列、栈等数据结构。 
+- 哈希表（Hash）：哈希表是一个键值对集合，可以存储多个键值对，常用于存储对象或实体的属性信息。 
+- 集合（Set）：集合是一个无序的字符串集合，可以进行交集、并集、差集等操作，常用于实现标签、好友列表等功能。 
+- 有序集合（Sorted Set）：有序集合是一个有序的字符串集合，每个字符串都关联一个分数，可以按照分数排序，常用于实现排行榜、热门列表等功能。

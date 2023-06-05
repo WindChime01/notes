@@ -62,7 +62,7 @@ function downloadExcel($strTable,$filename)			//公共方法
     $highestColumn = $sheet->getHighestColumn();
     // dump($highestRow);
     $all = array();
-    $keys = [
+    $keys = [			//第一列 0 的字段 第二列 1 的字段
       0 => "user_id",
       1 => "nickName",
     ];
