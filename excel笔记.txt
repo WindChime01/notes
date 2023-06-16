@@ -34,6 +34,7 @@ function downloadExcel($strTable,$filename)			//公共方法
                 $strTable .= '<td style="text-align:center;font-size:12px;">'.$val.'</td>';
                 $strTable .= '<td style="text-align:left;font-size:12px;">'.$user['username'].' </td>';
                 $strTable .= '<td style="text-align:left;font-size:12px;">'.$user['truename'].'</td>';
+                $strTable .= '<td style="text-align:left;font-size:12px;mso-number-format: \@">'.$user['truename'].'</td>';	//内容太长不显示内容，加上mso-number-format: \@
                 $strTable .= '<td style="text-align:left;font-size:12px;">'.(!empty($user['leader_if']) ? '是' : '否').'</td>';
                 $strTable .= '</tr>';
         }
@@ -56,7 +57,7 @@ function downloadExcel($strTable,$filename)			//公共方法
     $objPHPExcel = $objReader->load($inputFileName);
     
     
-    // 确定要读取的sheet，什么是sheet，看excel的右下角，真的不懂去百度吧
+    // 确定要读取的sheet，什么是sheet，看excel的右下角
     $sheet = $objPHPExcel->getSheet(0);
     $highestRow = $sheet->getHighestRow();
     $highestColumn = $sheet->getHighestColumn();
@@ -87,7 +88,7 @@ function downloadExcel($strTable,$filename)			//公共方法
     }
     $allcount = count($all);
     // dump($allcount);die;
-    foreach ($all as $val) {			//写入数据，实际已应用为主
+    foreach ($all as $val) {			//写入表内缺少的字段数据，实际以应用为主
         $data = [
             'nickName'=>'测试',
             'wxapp_id'=>10006,
